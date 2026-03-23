@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+font-family:-apple-system;
+background:#f2f2f7;
+}
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px;
+background:white;
+}
+
+.back{
+font-size:24px;
+font-weight:900;
+}
+
+.menu{
+display:flex;
+flex-direction:column;
+gap:4px;
+cursor:pointer;
+}
+
+.menu div{
+width:22px;
+height:2px;
+background:black;
+}
+
+.tabs{
+display:flex;
+background:white;
+padding:10px 20px;
+gap:30px;
+border-bottom:1px solid #eee;
+font-weight:600;
+}
+
+.tab{
+color:#999;
+}
+
+.tab.active{
+color:black;
+border-bottom:3px solid black;
+padding-bottom:6px;
+}
+
+.card{
+margin:20px;
+background:white;
+border-radius:20px;
+height:560px;
+position:relative;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+overflow:hidden;
+}
+
+.profile{
+position:absolute;
+top:30px;
+left:50%;
+transform:translateX(-50%);
+width:130px;
+height:170px;
+}
+
+.profile img{
+width:100%;
+height:100%;
+object-fit:cover;
+}
+
+.info{
+position:absolute;
+top:220px;
+left:30px;
+width:60%;
+}
+
+.name{
+font-size:22px;
+font-weight:700;
+margin-bottom:12px;
+}
+
+.sub{
+font-size:13px;
+color:#666;
+}
+
+.qr{
+position:absolute;
+right:30px;
+top:250px;
+width:120px;
+}
+
+.qr img{
+width:100%;
+}
+
+.switch{
+position:absolute;
+right:30px;
+top:250px;
+width:60px;
+height:32px;
+background:#ccc;
+border-radius:20px;
+cursor:pointer;
+}
+
+.knob{
+width:28px;
+height:28px;
+background:white;
+border-radius:50%;
+position:absolute;
+top:2px;
+left:2px;
+transition:0.3s;
+}
+
+.switch.on{
+background:#1c1c1e;
+}
+
+.switch.on .knob{
+left:30px;
+}
+
+.actionBtn{
+position:absolute;
+bottom:0;
+left:0;
+right:0;
+background:#1c1c1e;
+color:white;
+padding:18px;
+text-align:center;
+font-size:16px;
+cursor:pointer;
+border-bottom-left-radius:20px;
+border-bottom-right-radius:20px;
+}
+
+.bar{
+position:absolute;
+bottom:90px;
+left:20px;
+right:20px;
+height:5px;
+background:#ddd;
+border-radius:10px;
+overflow:hidden;
+}
+
+.fill{
+height:100%;
+width:100%;
+background:linear-gradient(to right,#4facfe,#4c00ff);
+transition:width 1s linear;
+}
+
+.time{
+position:absolute;
+bottom:65px;
+left:20px;
+font-size:13px;
+color:#777;
+}
+
+.detail{
+display:none;
+}
+
+.editor{
+position:fixed;
+bottom:0;
+width:100%;
+background:white;
+padding:20px;
+display:none;
+box-shadow:0 -5px 20px rgba(0,0,0,0.1);
+}
+
+.editor input{
+width:100%;
+padding:6px;
+margin-top:3px;
+}
+
+.editor button{
+margin-top:10px;
+padding:10px;
+width:48%;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<div class="back">〈</div>
+<div>모바일신분증</div>
+<div class="menu" onclick="menuClick()">
+<div></div><div></div><div></div>
+</div>
+</div>
+
+<div class="tabs">
+<div class="tab active">주민등록증</div>
+<div class="tab">운전면허증</div>
+</div>
+
+<div class="card">
+
+<div class="profile">
+<img id="profileImg">
+</div>
+
+<div id="qrView">
+
+<div class="qr">
+<img id="qr">
+</div>
+
+<div class="info">
+<div id="qrName" class="name"></div>
+<div id="qrBirth"></div>
+<div style="margin-top:10px;">
+<div id="qrAddr1"></div>
+</div>
+</div>
+
+</div>
+
+<div id="detailView" class="detail">
+
+<div class="info">
+<div id="name" class="name"></div>
+<div id="birth"></div>
+
+<div style="margin-top:10px;">
+<div id="addr1"></div>
+<div class="sub" id="addr2"></div>
+</div>
+
+<div style="margin-top:10px;" id="date2"></div>
+<div class="sub" id="issuer"></div>
+</div>
+
+<div class="switch" id="switchEl" onclick="toggleSwitch()">
+<div class="knob"></div>
+</div>
+
+</div>
+
+<div class="bar">
+<div class="fill" id="fill"></div>
+</div>
+
+<div class="time">
+남은시간 <span id="time">30</span>초
+</div>
+
+<div class="actionBtn" onclick="toggle()" id="btnText">
+상세정보 표시
+</div>
+
+</div>
+
+<div class="editor" id="editor">
+
+사진  
+<input type="file" accept="image/*" onchange="uploadImage(event)">
+
+<br><br>
+이름  
+<input id="editName">
+
+<br><br>
+주민번호  
+<input id="editBirth">
+
+<br><br>
+도로명주소  
+<input id="editAddr1">
+
+<br><br>
+상세주소  
+<input id="editAddr2">
+
+<br><br>
+날짜  
+<input id="editDate2">
+
+<br><br>
+발급기관  
+<input id="editIssuer">
+
+<br>
+
+<button onclick="save()">저장</button>
+<button onclick="resetData()">초기화</button>
+
+</div>
+
+<script>
+
+let isDetail=false
+let isOn=false
+
+let fullName=""
+let fullBirth=""
+let addr1Data=""
+let addr2Data=""
+let profileData=""
+
+function toggle(){
+
+isDetail=!isDetail
+
+document.getElementById("qrView").style.display=isDetail?"none":"block"
+document.getElementById("detailView").style.display=isDetail?"block":"none"
+
+document.getElementById("btnText").innerText=isDetail?"QR정보 표시":"상세정보 표시"
+
+}
+
+function maskBirth(){
+
+if(!fullBirth)return""
+
+if(isOn){
+return fullBirth.slice(0,6)+"-"+fullBirth.slice(6)
+}else{
+return fullBirth.slice(0,6)+"-*******"
+}
+
+}
+
+function maskAddr(){
+
+if(isOn){
+return [addr1Data,addr2Data]
+}else{
+return [addr1Data,addr2Data.replace(/./g,"*")]
+}
+
+}
+
+function toggleSwitch(){
+
+isOn=!isOn
+document.getElementById("switchEl").classList.toggle("on",isOn)
+render()
+
+}
+
+function render(){
+
+document.getElementById("name").innerText=fullName||""
+document.getElementById("birth").innerText=maskBirth()
+
+let a=maskAddr()
+
+document.getElementById("addr1").innerText=a[0]||""
+document.getElementById("addr2").innerText=addr2Data?a[1]:""
+
+document.getElementById("qrName").innerText=fullName||""
+document.getElementById("qrBirth").innerText=fullBirth?fullBirth.slice(0,6):""
+document.getElementById("qrAddr1").innerText=addr1Data||""
+
+if(profileData){
+document.getElementById("profileImg").src=profileData
+}
+
+}
+
+function newQR(){
+
+document.getElementById("qr").src=
+"https://api.qrserver.com/v1/create-qr-code/?size=200x200&data="+Math.random()
+
+}
+
+let timeLeft=30
+
+function update(){
+
+timeLeft--
+
+if(timeLeft<=0){
+
+timeLeft=30
+newQR()
+
+document.getElementById("fill").style.transition="none"
+document.getElementById("fill").style.width="100%"
+
+setTimeout(()=>{
+document.getElementById("fill").style.transition="width 1s linear"
+},50)
+
+}
+
+document.getElementById("time").innerText=timeLeft
+document.getElementById("fill").style.width=(timeLeft/30*100)+"%"
+
+}
+
+function uploadImage(e){
+
+const r=new FileReader()
+
+r.onload=function(){
+
+profileData=r.result
+document.getElementById("profileImg").src=profileData
+
+localStorage.setItem("profile",profileData)
+
+}
+
+r.readAsDataURL(e.target.files[0])
+
+}
+
+function save(){
+
+fullName=document.getElementById("editName").value
+fullBirth=document.getElementById("editBirth").value
+addr1Data=document.getElementById("editAddr1").value
+addr2Data=document.getElementById("editAddr2").value
+
+let date=document.getElementById("editDate2").value
+let issuer=document.getElementById("editIssuer").value
+
+document.getElementById("date2").innerText=date
+document.getElementById("issuer").innerText=issuer
+
+localStorage.setItem("name",fullName)
+localStorage.setItem("birth",fullBirth)
+localStorage.setItem("addr1",addr1Data)
+localStorage.setItem("addr2",addr2Data)
+localStorage.setItem("date",date)
+localStorage.setItem("issuer",issuer)
+
+render()
+
+document.getElementById("editor").style.display="none"
+
+}
+
+function resetData(){
+
+localStorage.clear()
+location.reload()
+
+}
+
+let clicks=[]
+
+function menuClick(){
+
+let now=Date.now()
+
+clicks.push(now)
+
+clicks=clicks.filter(t=>now-t<1000)
+
+if(clicks.length>=3){
+
+document.getElementById("editor").style.display="block"
+clicks=[]
+
+}
+
+}
+
+window.onload=function(){
+
+fullName=localStorage.getItem("name")||""
+fullBirth=localStorage.getItem("birth")||""
+addr1Data=localStorage.getItem("addr1")||""
+addr2Data=localStorage.getItem("addr2")||""
+
+document.getElementById("date2").innerText=localStorage.getItem("date")||""
+document.getElementById("issuer").innerText=localStorage.getItem("issuer")||""
+
+profileData=localStorage.getItem("profile")||""
+
+render()
+
+newQR()
+
+setInterval(update,1000)
+
+}
+
+</script>
+
+</body>
+</html>
